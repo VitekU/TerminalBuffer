@@ -8,4 +8,11 @@ public class CharacterCell {
     private TerminalColor foreground;
     private TerminalColor background;
     private Style style;
+
+    public CharacterCell(char character, TerminalColor foreground, TerminalColor background, Style style) {
+        this.character = character;
+        this.foreground = foreground;
+        this.background = background;
+        this.style = style;
+    }
 }
