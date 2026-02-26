@@ -1,11 +1,14 @@
 package com.vitungermann.terminalbuffer.core;
 
-import java.util.ArrayList;
+import com.vitungermann.terminalbuffer.helper.CursorPosition;
+
+import java.util.LinkedList;
 
 public class TerminalBuffer {
     private int height;
     private int width;
 
-    private ArrayList<CharacterCell[]> bufferGrid;
-    private int screenStart;
+    private LinkedList<CharacterCell[]> screen;
+    private LinkedList<CharacterCell> scrollback;
+
 }
