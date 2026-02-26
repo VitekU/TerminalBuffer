@@ -11,7 +11,7 @@ public class TerminalBuffer {
     private final int height;
     private final int width;
 
-    private int maxScrollback;
+    private final int maxScrollback;
     private CursorPosition cursorPosition;
     private LinkedList<CharacterCell[]> screen;
     private LinkedList<CharacterCell[]> scrollback;
@@ -21,19 +21,28 @@ public class TerminalBuffer {
     private Style currentStyle;
 
     public void MoveCursor(Direction direction, int n) {
+        int newRow = cursorPosition.row;
+        int newColumn = cursorPosition.column;
+
         if (direction == Direction.UP) {
-            cursorPosition.row = cursorClamp(cursorPosition.row - n, height);
+            newRow = cursorPosition.row - n;
         }
         else if (direction == Direction.DOWN) {
-            cursorPosition.row = cursorClamp(cursorPosition.row + n, height);
+            newRow = cursorPosition.row + n;
         }
         else if (direction == Direction.RIGHT) {
-            cursorPosition.column = cursorClamp(cursorPosition.column + n, width);
+            newColumn = (cursorPosition.column + n) % width;
+            newRow = (cursorPosition.row + n) / width;
         }
         else {
-            cursorPosition.column = cursorClamp(cursorPosition.column - n, width);
+            newColumn = cursorPosition.column - n;
+            if (newColumn < 0) {
+                newColumn += width;
+                newRow -= (newColumn % width + 1);
+            }
         }
-
+        cursorPosition.row = cursorClamp(newRow, height);
+        cursorPosition.column = cursorClamp(newColumn, width);
     }
 
     private static int cursorClamp(int n, int max) {
@@ -44,6 +53,16 @@ public class TerminalBuffer {
         this.height = height;
         this.width = width;
         this.maxScrollback = maxScrollback;
+        cursorPosition = new CursorPosition(0,0);
+
+        this.screen = new LinkedList<>();
+        for (int i = 0; i < height; i++) {
+            CharacterCell[] row = new CharacterCell[width];
+            for (int j = 0; j < width; j++) {
+                row[j] = new CharacterCell(DefaultValues.defaultChar, DefaultValues.defaultForeground, DefaultValues.defaultBackground, DefaultValues.defaultStyle);
+            }
+            this.screen.add(row);
+        }
 
     }
 
