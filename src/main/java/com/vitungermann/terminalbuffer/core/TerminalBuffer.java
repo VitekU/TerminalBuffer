@@ -28,7 +28,12 @@ public class TerminalBuffer {
         StringBuilder sb = new StringBuilder();
         for (CharacterCell[] row : screen) {
             for (CharacterCell cc : row) {
-                sb.append(cc.getChar());
+               if (cc == null) {
+                   sb.append(" ");
+               }
+               else {
+                   sb.append(cc.getChar());
+               }
             }
             sb.append("\n");
         }
@@ -41,9 +46,6 @@ public class TerminalBuffer {
 
     public void addEmptyLine() {
         CharacterCell[] row = new CharacterCell[width];
-        for (int j = 0; j < width; j++) {
-            row[j] = new CharacterCell(DefaultValues.defaultChar, DefaultValues.defaultForeground, DefaultValues.defaultBackground, DefaultValues.defaultStyle);
-        }
         this.screen.add(row);
     }
 
@@ -56,7 +58,6 @@ public class TerminalBuffer {
                 this.scrollback.add(this.screen.removeFirst());
                 addEmptyLine();
             }
-
         }
     }
 
@@ -100,12 +101,9 @@ public class TerminalBuffer {
 
         this.scrollback = new Scrollback(maxScrollback);
         this.screen = new ArrayList<>();
+
         for (int i = 0; i < height; i++) {
-            CharacterCell[] row = new CharacterCell[width];
-            for (int j = 0; j < width; j++) {
-                row[j] = new CharacterCell(DefaultValues.defaultChar, DefaultValues.defaultForeground, DefaultValues.defaultBackground, DefaultValues.defaultStyle);
-            }
-            this.screen.add(row);
+            addEmptyLine();
         }
 
     }

@@ -24,7 +24,12 @@ public class Scrollback {
                 index =  (i + topIndex) % scrollbackSize;
             }
             for (CharacterCell cc : buffer[index]) {
-                sb.append(cc.getChar());
+                if (cc == null) {
+                    sb.append(" ");
+                }
+                else {
+                    sb.append(cc.getChar());
+                }
             }
             sb.append("\n");
         }
