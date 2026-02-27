@@ -9,6 +9,10 @@ public class CharacterCell {
     private TerminalColor background;
     private Style style;
 
+    public char getChar() {
+        return character;
+    }
+
     public CharacterCell(char character, TerminalColor foreground, TerminalColor background, Style style) {
         this.character = character;
         this.foreground = foreground;

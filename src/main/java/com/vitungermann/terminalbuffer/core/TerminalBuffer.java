@@ -4,7 +4,6 @@ import com.vitungermann.terminalbuffer.helper.CursorPosition;
 import com.vitungermann.terminalbuffer.helper.Direction;
 import com.vitungermann.terminalbuffer.helper.Style;
 import com.vitungermann.terminalbuffer.helper.TerminalColor;
-import com.vitungermann.terminalbuffer.core.Scrollback;
 import java.util.ArrayList;
 
 import static com.vitungermann.terminalbuffer.helper.MathHelp.clamp;
@@ -22,17 +21,45 @@ public class TerminalBuffer {
     private TerminalColor currentBackground;
     private Style currentStyle;
 
+    public String getScrollback() {
+        return scrollback.getScrollback();
+    }
+    public String getScreen() {
+        StringBuilder sb = new StringBuilder();
+        for (CharacterCell[] row : screen) {
+            for (CharacterCell cc : row) {
+                sb.append(cc.getChar());
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    public CursorPosition getCursorPosition() {
+        return cursorPosition;
+    }
+
+    public void addEmptyLine() {
+        CharacterCell[] row = new CharacterCell[width];
+        for (int j = 0; j < width; j++) {
+            row[j] = new CharacterCell(DefaultValues.defaultChar, DefaultValues.defaultForeground, DefaultValues.defaultBackground, DefaultValues.defaultStyle);
+        }
+        this.screen.add(row);
+    }
+
     public void write(String text) {
         for (int i = 0; i < text.length(); i++) {
             CharacterCell newChar = new CharacterCell(text.charAt(i), currentForeground, currentBackground, currentStyle);
             this.screen.get(cursorPosition.row)[cursorPosition.column] = newChar;
-            int linesToAdd = moveCursor(Direction.RIGHT, 1);
-            for (int j = 0; j < linesToAdd; j++) {
-                this.scrollback.add(screen.get(j));
+            int newLines = moveCursor(Direction.RIGHT, 1);
+            for (int j = 0; j < newLines; j++) {
+                this.scrollback.add(this.screen.removeFirst());
+                addEmptyLine();
             }
-            this.screen.subList(0, linesToAdd).clear();
+
         }
     }
+
     public int moveCursor(Direction direction, int n) {
         int newRow = cursorPosition.row;
         int newColumn = cursorPosition.column;
@@ -45,7 +72,7 @@ public class TerminalBuffer {
         }
         else if (direction == Direction.RIGHT) {
             newColumn = (cursorPosition.column + n) % width;
-            newRow += (cursorPosition.row + n) / width;
+            newRow += (cursorPosition.column + n) / width;
         }
         else {
             newColumn = cursorPosition.column - n;
@@ -56,10 +83,9 @@ public class TerminalBuffer {
             }
         }
 
-        if (newRow > height) {
-            linesToAdd = newRow - height;
+        if (newRow >= height) {
+            linesToAdd = newRow - height + 1;
         }
-
         this.cursorPosition.row = clamp(newRow, height);
         this.cursorPosition.column = clamp(newColumn, width);
         return linesToAdd;
@@ -73,13 +99,13 @@ public class TerminalBuffer {
         cursorPosition = new CursorPosition(0,0);
 
         this.scrollback = new Scrollback(maxScrollback);
-        this.screen = new ArrayList<>(height);
+        this.screen = new ArrayList<>();
         for (int i = 0; i < height; i++) {
             CharacterCell[] row = new CharacterCell[width];
             for (int j = 0; j < width; j++) {
                 row[j] = new CharacterCell(DefaultValues.defaultChar, DefaultValues.defaultForeground, DefaultValues.defaultBackground, DefaultValues.defaultStyle);
             }
-            this.screen.set(i, row);
+            this.screen.add(row);
         }
 
     }
