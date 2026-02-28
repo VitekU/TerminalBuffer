@@ -93,6 +93,18 @@ public class TerminalBuffer {
         scrollback.clear();
     }
 
+    public void setScreenForeground(TerminalColor foreground) {
+        screen.setCurrentForeground(foreground);
+    }
+
+    public void setScreenBackground(TerminalColor background) {
+        screen.setCurrentBackground(background);
+    }
+
+    public void setScreenStyle(Style style) {
+        screen.setCurrentStyle(style);
+    }
+
     public TerminalBuffer(int height, int width, int maxScrollback) {
         this.height = height;
         this.width = width;

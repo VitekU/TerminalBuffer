@@ -16,6 +16,18 @@ public class Screen {
     private TerminalColor currentBackground;
     private Style currentStyle;
 
+    public void setCurrentForeground(TerminalColor currentForeground) {
+        this.currentForeground = currentForeground;
+    }
+
+    public void setCurrentBackground(TerminalColor currentBackground) {
+        this.currentBackground = currentBackground;
+    }
+
+    public void setCurrentStyle(Style currentStyle) {
+        this.currentStyle = currentStyle;
+    }
+
     public String getScreen() {
         StringBuilder sb = new StringBuilder();
         for (var row : rows) {
