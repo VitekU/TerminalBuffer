@@ -13,6 +13,12 @@ public class Scrollback {
         rowCount = clamp(rowCount + 1, scrollbackSize);
     }
 
+    public void clear() {
+        topIndex = 0;
+        rowCount = 0;
+        buffer = new CharacterCell[scrollbackSize][];
+    }
+
     public String getScrollback() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < rowCount; i++) {
@@ -23,15 +29,6 @@ public class Scrollback {
             else {
                 index =  (i + topIndex) % scrollbackSize;
             }
-            for (CharacterCell cc : buffer[index]) {
-                if (cc == null) {
-                    sb.append(" ");
-                }
-                else {
-                    sb.append(cc.getChar());
-                }
-            }
-            sb.append("\n");
         }
         return sb.toString();
     }

@@ -9,6 +9,7 @@ import java.util.List;
 
 public class Screen {
     private List<List<CharacterCell>> rows;
+    private int totalCharacters;
     private int height;
     private int width;
     private TerminalColor currentForeground;
@@ -25,14 +26,47 @@ public class Screen {
         return sb.toString();
     }
 
-    public void insertEmptyLine() {
+    public void clear() {
+        rows.clear();
+        totalCharacters = 0;
+    }
+
+    public List<List<CharacterCell>> removeOverflowChars() {
+        int overflowCount = totalCharacters - width * height;
+        if (overflowCount < 0) {return new ArrayList<>();}
+
+        List<List<CharacterCell>> removedRows = new ArrayList<>();
+        removedRows.add(new ArrayList<>());
+        int column = 0;
+        int row = 0;
+
+        for (int i = 0; i < overflowCount; i++) {
+            CharacterCell cell = rows.get(column).get(row);
+            rows.get(column).removeFirst();
+            removedRows.getLast().add(cell);
+            column++;
+            if (column >= rows.get(row).size()) {
+                rows.removeFirst();
+                column = 0;
+                row++;
+            }
+            if (removedRows.size() >= width) {
+                removedRows.add(new ArrayList<>());
+            }
+        }
+        return removedRows;
+    }
+
+    public List<List<CharacterCell>> insertEmptyLine() {
         List<CharacterCell> emptyRow = new ArrayList<>();
         for (int i = 0; i < width; i++) {
             emptyRow.add(new CharacterCell(' ', DefaultValues.defaultForeground, DefaultValues.defaultBackground, DefaultValues.defaultStyle));
         }
+        totalCharacters += width;
+        return removeOverflowChars();
     }
 
-    public void fillLine(char character, int line) {
+    public List<List<CharacterCell>> fillLine(char character, int line) {
         int index = line * width;
 
         for (int i = 0; i < rows.size(); i++) {
@@ -51,13 +85,15 @@ public class Screen {
                         row++;
                     }
                 }
-                return;
+                totalCharacters += width;
+                return removeOverflowChars();
             }
             index -= currentSize;
         }
+        throw new RuntimeException("Fill line overflow");
     }
 
-    public void write(String text) {
+    public List<List<CharacterCell>> write(String text) {
         List<CharacterCell> newRow = new ArrayList<>();
         var textArr = text.toCharArray();
         for (char character : textArr) {
@@ -65,9 +101,11 @@ public class Screen {
             newRow.add(new CharacterCell(character, currentForeground, currentBackground, currentStyle));
         }
         this.rows.add(newRow);
+        totalCharacters += textArr.length;
+        return removeOverflowChars();
     }
 
-    public void insert(String text, CursorPosition startingPos) {
+    public List<List<CharacterCell>> insert(String text, CursorPosition startingPos) {
         int blockIndex = 0;
         int count = 0;
         int posIndex = startingPos.row * width + startingPos.column;
@@ -90,6 +128,8 @@ public class Screen {
             newRow.add(new CharacterCell(character, currentForeground, currentBackground, currentStyle));
         }
         this.rows.add(blockIndex + 1, newRow);
+        totalCharacters += newRow.size();
+        return removeOverflowChars();
     }
 
     public Screen(int height, int width, TerminalColor currentForeground, TerminalColor currentBackground, Style currentStyle)
@@ -99,6 +139,7 @@ public class Screen {
         this.currentForeground = currentForeground;
         this.currentBackground = currentBackground;
         this.currentStyle = currentStyle;
+        this.totalCharacters = 0;
 
         rows = new ArrayList<>();
     }
