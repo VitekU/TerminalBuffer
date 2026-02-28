@@ -18,9 +18,12 @@ public class TerminalBuffer {
 
     private Scrollback scrollback;
 
+    private Screen screen;
+
     public String getScrollback() {
         return scrollback.getScrollback();
     }
+    public String getScreen() {return  screen.getScreen();}
 
     public CursorPosition getCursorPosition() {
         return cursorPosition;
@@ -63,7 +66,7 @@ public class TerminalBuffer {
         this.width = width;
         this.maxScrollback = maxScrollback;
         cursorPosition = new CursorPosition(0,0);
-
+        this.screen = new Screen(height, width, DefaultValues.defaultForeground, DefaultValues.defaultBackground, DefaultValues.defaultStyle);
         this.scrollback = new Scrollback(maxScrollback);
     }
 

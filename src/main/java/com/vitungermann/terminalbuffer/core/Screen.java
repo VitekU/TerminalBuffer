@@ -15,7 +15,7 @@ public class Screen {
     private TerminalColor currentBackground;
     private Style currentStyle;
 
-    public String getScreenToString() {
+    public String getScreen() {
         StringBuilder sb = new StringBuilder();
         for (var row : rows) {
             for (var cell : row) {
@@ -23,6 +23,38 @@ public class Screen {
             }
         }
         return sb.toString();
+    }
+
+    public void insertEmptyLine() {
+        List<CharacterCell> emptyRow = new ArrayList<>();
+        for (int i = 0; i < width; i++) {
+            emptyRow.add(new CharacterCell(' ', DefaultValues.defaultForeground, DefaultValues.defaultBackground, DefaultValues.defaultStyle));
+        }
+    }
+
+    public void fillLine(char character, int line) {
+        int index = line * width;
+
+        for (int i = 0; i < rows.size(); i++) {
+            List<CharacterCell> currentRow = rows.get(i);
+            int currentSize = currentRow.size();
+
+            if (index < currentSize) {
+                int row = i;
+                int column = index;
+
+                for (int j = 0; j < width; j++) {
+                    rows.get(row).set(column, new CharacterCell(character, currentForeground, currentBackground, currentStyle));
+                    column++;
+                    if (column >= rows.get(row).size()) {
+                        column = 0;
+                        row++;
+                    }
+                }
+                return;
+            }
+            index -= currentSize;
+        }
     }
 
     public void write(String text) {
