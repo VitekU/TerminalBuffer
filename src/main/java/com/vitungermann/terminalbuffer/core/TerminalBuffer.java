@@ -49,7 +49,7 @@ public class TerminalBuffer {
         }
         else {
             newColumn = cursorPosition.column - n;
-            if (newColumn < 0) {
+            if (newColumn < 0 && newRow != 0) {
                 newRow -= (-newColumn / width + 1);
                 newColumn = (newColumn % width) + width;
 
